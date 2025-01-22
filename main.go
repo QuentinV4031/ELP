@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"image"
 	"io"
 	"log"
@@ -30,6 +31,7 @@ func main() {
 			continue
 		}
 
+		// Chaque connexion est traitée dans une goroutine
 		go handleConnection(conn)
 	}
 }
@@ -38,50 +40,81 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	log.Println("Connexion acceptée :", conn.RemoteAddr())
 
+	// Lire l'opération et la valeur
+	operation, value, err := readOperationAndValue(conn)
+	if err != nil {
+		log.Printf("Erreur lors de la lecture de l'opération et de la valeur : %v", err)
+		return
+	}
+
+	// Lire l'image
+	imageData, err := readImage(conn)
+	if err != nil {
+		log.Printf("Erreur lors de la lecture de l'image : %v", err)
+		return
+	}
+
+	// Traitement de l'image
+	result, err := processImage(operation, value, imageData)
+	if err != nil {
+		log.Printf("Erreur lors du traitement de l'image : %v", err)
+		return
+	}
+
+	// Sauvegarder l'image traitée et envoyer la réponse
+	err = sendProcessedImage(conn, result)
+	if err != nil {
+		log.Printf("Erreur lors de l'envoi de l'image traitée : %v", err)
+	}
+}
+
+func readOperationAndValue(conn net.Conn) (string, int, error) {
 	reader := bufio.NewReader(conn)
 
 	// Lire l'opération
 	operation, err := reader.ReadString('\n')
 	if err != nil {
-		log.Printf("Erreur lors de la lecture de l'opération : %v", err)
-		return
+		return "", 0, err
 	}
 	operation = operation[:len(operation)-1] // Supprimer le saut de ligne
 
 	// Lire la valeur
 	valueStr, err := reader.ReadString('\n')
 	if err != nil {
-		log.Printf("Erreur lors de la lecture de la valeur : %v", err)
-		return
+		return "", 0, err
 	}
 	valueStr = valueStr[:len(valueStr)-1] // Supprimer le saut de ligne
 
 	value, err := strconv.Atoi(valueStr)
 	if err != nil {
-		log.Printf("Valeur invalide : %v", err)
-		return
+		return "", 0, err
 	}
 
+	return operation, value, nil
+}
+
+func readImage(conn net.Conn) ([]byte, error) {
 	// Lire la taille de l'image
 	var imageSize int32
-	err = binary.Read(reader, binary.LittleEndian, &imageSize)
+	err := binary.Read(conn, binary.LittleEndian, &imageSize)
 	if err != nil {
-		log.Printf("Erreur lors de la lecture de la taille de l'image : %v", err)
-		return
+		return nil, err
 	}
 
 	// Lire l'image
 	imageData := make([]byte, imageSize)
-	_, err = io.ReadFull(reader, imageData)
+	_, err = io.ReadFull(conn, imageData)
 	if err != nil {
-		log.Printf("Erreur lors de la lecture des données de l'image : %v", err)
-		return
+		return nil, err
 	}
 
+	return imageData, nil
+}
+
+func processImage(operation string, value int, imageData []byte) (*image.NRGBA, error) {
 	src, err := imaging.Decode(bytes.NewReader(imageData))
 	if err != nil {
-		log.Printf("Erreur lors du décodage de l'image : %v", err)
-		return
+		return nil, err
 	}
 
 	var result *image.NRGBA
@@ -90,53 +123,51 @@ func handleConnection(conn net.Conn) {
 	} else if operation == "quality" {
 		result = imaging.Resize(src, src.Bounds().Dx()*value/100, 0, imaging.Lanczos)
 	} else {
-		log.Printf("Opération inconnue : %s", operation)
-		return
+		return nil, fmt.Errorf("Opération inconnue : %s", operation)
 	}
 
-	// Sauvegarder l'image temporairement
+	return result, nil
+}
+
+func sendProcessedImage(conn net.Conn, result *image.NRGBA) error {
+	// Sauvegarder temporairement l'image traitée
 	outputPath := "output_image.jpg"
-	err = imaging.Save(result, outputPath)
+	err := imaging.Save(result, outputPath)
 	if err != nil {
-		log.Printf("Erreur lors de la sauvegarde de l'image : %v", err)
-		return
+		return err
 	}
 
 	// Charger l'image sauvegardée
 	outputFile, err := os.Open(outputPath)
 	if err != nil {
-		log.Printf("Erreur lors de l'ouverture du fichier traité : %v", err)
-		return
+		return err
 	}
 	defer outputFile.Close()
 
 	outputInfo, err := outputFile.Stat()
 	if err != nil {
-		log.Printf("Erreur lors de la récupération des informations du fichier : %v", err)
-		return
+		return err
 	}
 
 	outputSize := outputInfo.Size()
 	outputData := make([]byte, outputSize)
 	_, err = outputFile.Read(outputData)
 	if err != nil {
-		log.Printf("Erreur lors de la lecture du fichier traité : %v", err)
-		return
+		return err
 	}
 
 	// Envoyer la taille de l'image
 	err = binary.Write(conn, binary.LittleEndian, int32(outputSize))
 	if err != nil {
-		log.Printf("Erreur lors de l'envoi de la taille de l'image : %v", err)
-		return
+		return err
 	}
 
 	// Envoyer l'image traitée
 	_, err = conn.Write(outputData)
 	if err != nil {
-		log.Printf("Erreur lors de l'envoi de l'image : %v", err)
-		return
+		return err
 	}
 
 	log.Println("Image traitée envoyée avec succès.")
+	return nil
 }

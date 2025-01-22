@@ -1,0 +1,97 @@
+package main
+
+import (
+	"bufio"
+	"bytes"
+	"encoding/binary"
+	"fmt"
+	"log"
+	"net"
+	"os"
+
+	"github.com/disintegration/imaging"
+)
+
+func main() {
+	// Connexion au serveur
+	conn, err := net.Dial("tcp", "localhost:8080")
+	if err != nil {
+		log.Fatalf("Erreur lors de la connexion au serveur : %v", err)
+	}
+	defer conn.Close()
+
+	// Ouvrir une image existante
+	imagePath := "input.jpg" // Chemin de l'image à tester
+	imgFile, err := os.Open(imagePath)
+	if err != nil {
+		log.Fatalf("Erreur lors de l'ouverture du fichier image : %v", err)
+	}
+	defer imgFile.Close()
+
+	imgInfo, err := imgFile.Stat()
+	if err != nil {
+		log.Fatalf("Erreur lors de la récupération des infos du fichier : %v", err)
+	}
+
+	imgSize := imgInfo.Size()
+	imgData := make([]byte, imgSize)
+	_, err = imgFile.Read(imgData)
+	if err != nil {
+		log.Fatalf("Erreur lors de la lecture du fichier image : %v", err)
+	}
+
+	// Choisir une opération (contrast ou quality) et sa valeur
+	operation := "contrast"
+	value := 30 // Par exemple, +30% de contraste
+
+	// Envoi des données au serveur
+	writer := bufio.NewWriter(conn)
+
+	// Envoi de l'opération
+	_, err = writer.WriteString(operation + "\n")
+	if err != nil {
+		log.Fatalf("Erreur lors de l'envoi de l'opération : %v", err)
+	}
+
+	// Envoi de la valeur
+	_, err = writer.WriteString(fmt.Sprintf("%d\n", value))
+	if err != nil {
+		log.Fatalf("Erreur lors de l'envoi de la valeur : %v", err)
+	}
+
+	// Envoi de la taille de l'image
+	err = binary.Write(writer, binary.LittleEndian, int32(imgSize))
+	if err != nil {
+		log.Fatalf("Erreur lors de l'envoi de la taille de l'image : %v", err)
+	}
+
+	// Envoi des données de l'image
+	_, err = writer.Write(imgData)
+	if err != nil {
+		log.Fatalf("Erreur lors de l'envoi des données de l'image : %v", err)
+	}
+	writer.Flush()
+
+	// Réception de la taille de l'image modifiée
+	var outputSize int32
+	err = binary.Read(conn, binary.LittleEndian, &outputSize)
+	if err != nil {
+		log.Fatalf("Erreur lors de la réception de la taille de l'image : %v", err)
+	}
+
+	// Réception des données de l'image modifiée
+	outputData := make([]byte, outputSize)
+	_, err = conn.Read(outputData)
+	if err != nil {
+		log.Fatalf("Erreur lors de la réception des données de l'image : %v", err)
+	}
+
+	// Sauvegarder l'image reçue
+	outputPath := "output.jpg"
+	err = os.WriteFile(outputPath, outputData, 0644)
+	if err != nil {
+		log.Fatalf("Erreur lors de la sauvegarde de l'image reçue : %v", err)
+	}
+
+	log.Printf("Image traitée sauvegardée sous : %s", outputPath)
+}

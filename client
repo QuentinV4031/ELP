@@ -1,97 +1,131 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/binary"
 	"fmt"
+
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
 	"log"
 	"net"
 	"os"
-
-	"github.com/disintegration/imaging"
 )
 
 func main() {
-	// Connexion au serveur
-	conn, err := net.Dial("tcp", "localhost:8080")
+	// Connexion au serveur TCP à l'adresse correcte (127.0.0.1:8080)
+	conn, err := net.Dial("tcp", ":8080") // Utilisation de l'adresse IPv4
 	if err != nil {
-		log.Fatalf("Erreur lors de la connexion au serveur : %v", err)
+		log.Fatalf("Erreur de connexion au serveur : %v", err)
 	}
 	defer conn.Close()
 
-	// Ouvrir une image existante
-	imagePath := "input.jpg" // Chemin de l'image à tester
-	imgFile, err := os.Open(imagePath)
-	if err != nil {
-		log.Fatalf("Erreur lors de l'ouverture du fichier image : %v", err)
-	}
-	defer imgFile.Close()
+	// Demander à l'utilisateur l'opération et la valeur
+	var operation string
+	var value int
+	fmt.Print("Entrez l'opération (contrast ou quality): ")
+	fmt.Scanln(&operation)
+	fmt.Print("Entrez la valeur : ")
+	fmt.Scanln(&value)
 
-	imgInfo, err := imgFile.Stat()
-	if err != nil {
-		log.Fatalf("Erreur lors de la récupération des infos du fichier : %v", err)
-	}
-
-	imgSize := imgInfo.Size()
-	imgData := make([]byte, imgSize)
-	_, err = imgFile.Read(imgData)
-	if err != nil {
-		log.Fatalf("Erreur lors de la lecture du fichier image : %v", err)
+	// Vérifier que l'opération est valide
+	if operation != "contrast" && operation != "quality" {
+		log.Fatal("Opération invalide. Veuillez entrer 'contrast' ou 'quality'.")
 	}
 
-	// Choisir une opération (contrast ou quality) et sa valeur
-	operation := "contrast"
-	value := 30 // Par exemple, +30% de contraste
-
-	// Envoi des données au serveur
-	writer := bufio.NewWriter(conn)
-
-	// Envoi de l'opération
-	_, err = writer.WriteString(operation + "\n")
+	// Lire l'image à envoyer
+	imagePath := "input_image.jpg" // Changez le chemin de l'image selon votre fichier
+	imageData, err := readImageFromFile(imagePath)
 	if err != nil {
-		log.Fatalf("Erreur lors de l'envoi de l'opération : %v", err)
+		log.Fatalf("Erreur lors de la lecture de l'image : %v", err)
 	}
 
-	// Envoi de la valeur
-	_, err = writer.WriteString(fmt.Sprintf("%d\n", value))
+	// Envoyer l'opération, la valeur et l'image au serveur
+	err = sendRequest(conn, operation, value, imageData)
 	if err != nil {
-		log.Fatalf("Erreur lors de l'envoi de la valeur : %v", err)
+		log.Fatalf("Erreur lors de l'envoi de la requête au serveur : %v", err)
 	}
 
-	// Envoi de la taille de l'image
-	err = binary.Write(writer, binary.LittleEndian, int32(imgSize))
+	// Recevoir l'image traitée du serveur
+	err = receiveAndSaveImage(conn)
 	if err != nil {
-		log.Fatalf("Erreur lors de l'envoi de la taille de l'image : %v", err)
+		log.Fatalf("Erreur lors de la réception de l'image traitée : %v", err)
 	}
 
-	// Envoi des données de l'image
-	_, err = writer.Write(imgData)
-	if err != nil {
-		log.Fatalf("Erreur lors de l'envoi des données de l'image : %v", err)
-	}
-	writer.Flush()
+	fmt.Println("Image traitée sauvegardée avec succès.")
+}
 
-	// Réception de la taille de l'image modifiée
-	var outputSize int32
-	err = binary.Read(conn, binary.LittleEndian, &outputSize)
+// readImageFromFile lit le fichier image et retourne les données sous forme de slice de bytes
+func readImageFromFile(path string) ([]byte, error) {
+	file, err := os.Open(path)
 	if err != nil {
-		log.Fatalf("Erreur lors de la réception de la taille de l'image : %v", err)
+		return nil, fmt.Errorf("erreur lors de l'ouverture de l'image : %v", err)
 	}
+	defer file.Close()
 
-	// Réception des données de l'image modifiée
-	outputData := make([]byte, outputSize)
-	_, err = conn.Read(outputData)
+	// Lire l'image entière dans un buffer
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, file)
 	if err != nil {
-		log.Fatalf("Erreur lors de la réception des données de l'image : %v", err)
+		return nil, fmt.Errorf("erreur lors de la lecture de l'image : %v", err)
 	}
 
-	// Sauvegarder l'image reçue
-	outputPath := "output.jpg"
-	err = os.WriteFile(outputPath, outputData, 0644)
+	return buf.Bytes(), nil
+}
+
+// sendRequest envoie l'opération, la valeur et l'image au serveur
+func sendRequest(conn net.Conn, operation string, value int, imageData []byte) error {
+	// Envoyer l'opération
+	_, err := fmt.Fprintf(conn, "%s\n", operation)
 	if err != nil {
-		log.Fatalf("Erreur lors de la sauvegarde de l'image reçue : %v", err)
+		return fmt.Errorf("erreur lors de l'envoi de l'opération : %v", err)
 	}
 
-	log.Printf("Image traitée sauvegardée sous : %s", outputPath)
+	// Envoyer la valeur
+	_, err = fmt.Fprintf(conn, "%d\n", value)
+	if err != nil {
+		return fmt.Errorf("erreur lors de l'envoi de la valeur : %v", err)
+	}
+
+	// Envoyer la taille de l'image
+	imageSize := int32(len(imageData))
+	err = binary.Write(conn, binary.LittleEndian, imageSize)
+	if err != nil {
+		return fmt.Errorf("erreur lors de l'envoi de la taille de l'image : %v", err)
+	}
+
+	// Envoyer l'image
+	_, err = conn.Write(imageData)
+	if err != nil {
+		return fmt.Errorf("erreur lors de l'envoi de l'image : %v", err)
+	}
+
+	return nil
+}
+
+// receiveAndSaveImage reçoit l'image traitée du serveur et la sauvegarde localement
+func receiveAndSaveImage(conn net.Conn) error {
+	// Lire la taille de l'image
+	var imageSize int32
+	err := binary.Read(conn, binary.LittleEndian, &imageSize)
+	if err != nil {
+		return fmt.Errorf("erreur lors de la lecture de la taille de l'image : %v", err)
+	}
+
+	// Lire l'image traitée
+	imageData := make([]byte, imageSize)
+	_, err = io.ReadFull(conn, imageData)
+	if err != nil {
+		return fmt.Errorf("erreur lors de la lecture de l'image traitée : %v", err)
+	}
+
+	// Sauvegarder l'image traitée dans un fichier
+	outputPath := "output_image.jpg"
+	err = os.WriteFile(outputPath, imageData, 0644)
+	if err != nil {
+		return fmt.Errorf("erreur lors de la sauvegarde de l'image traitée : %v", err)
+	}
+
+	return nil
 }

@@ -1,0 +1,7 @@
+{
+    "go.gopath": "C:\\Users\\<jerem>\\go",
+    "go.goroot": "C:\\Program Files\\Go",
+    "terminal.integrated.env.windows": {
+        "Path": "C:\\Program Files\\Go\\bin;${env:Path}"
+    }
+}

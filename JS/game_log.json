@@ -1,0 +1,326 @@
+{
+  "mysteryWord": "Virus",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": "maladie"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "covid"
+    },
+    {
+      "player": "Karel",
+      "clue": "vaccin"
+    },
+    {
+      "player": "Hatim",
+      "clue": "molecule"
+    }
+  ],
+  "validClues": [
+    "maladie",
+    "covid",
+    "vaccin",
+    "molecule"
+  ],
+  "guess": "bite",
+  "result": false
+},
+{
+  "mysteryWord": "Europe",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": "occident"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "continent"
+    },
+    {
+      "player": "Karel",
+      "clue": "civilisation"
+    },
+    {
+      "player": "Hatim",
+      "clue": "bite"
+    }
+  ],
+  "validClues": [
+    "occident",
+    "continent",
+    "civilisation",
+    "bite"
+  ],
+  "result": 1
+},
+{
+  "mysteryWord": "Moutarde",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": "piquant"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "dijon"
+    },
+    {
+      "player": "Karel",
+      "clue": "graine"
+    },
+    {
+      "player": "Hatim",
+      "clue": "nulle"
+    }
+  ],
+  "validClues": [
+    "piquant",
+    "dijon",
+    "graine",
+    "nulle"
+  ],
+  "result": 1
+},
+{
+  "mysteryWord": "Moutarde",
+  "clues": [
+    {
+      "player": "Louis",
+      "clue": "banane "
+    },
+    {
+      "player": "Jérémie",
+      "clue": "bitd"
+    },
+    {
+      "player": "Karel",
+      "clue": ""
+    },
+    {
+      "player": "Hatim",
+      "clue": "d"
+    }
+  ],
+  "validClues": [
+    "banane ",
+    "bitd",
+    "",
+    "d"
+  ],
+  "result": 1
+},
+{
+  "mysteryWord": "Moutarde",
+  "clues": [
+    {
+      "player": "Louis",
+      "clue": "bd"
+    },
+    {
+      "player": "Ivan",
+      "clue": "ff"
+    },
+    {
+      "player": "Karel",
+      "clue": "ff"
+    },
+    {
+      "player": "Hatim",
+      "clue": "f"
+    }
+  ],
+  "validClues": [
+    "bd",
+    "f"
+  ],
+  "result": 1
+},
+{
+  "mysteryWord": "Europe",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": ""
+    },
+    {
+      "player": "Jérémie",
+      "clue": "f"
+    },
+    {
+      "player": "Karel",
+      "clue": "f"
+    },
+    {
+      "player": "Hatim",
+      "clue": "ff"
+    }
+  ],
+  "validClues": [
+    "",
+    "ff"
+  ],
+  "result": 0
+},
+{
+  "mysteryWord": "Moutarde",
+  "clues": [
+    {
+      "player": "Louis",
+      "clue": "fe"
+    },
+    {
+      "player": "Ivan",
+      "clue": "e"
+    },
+    {
+      "player": "Karel",
+      "clue": "d"
+    },
+    {
+      "player": "Hatim",
+      "clue": ""
+    }
+  ],
+  "validClues": [
+    "fe",
+    "e",
+    "d",
+    ""
+  ],
+  "result": 0
+},
+{
+  "mysteryWord": "Moutarde",
+  "clues": [
+    {
+      "player": "Louis",
+      "clue": "f"
+    },
+    {
+      "player": "Ivan",
+      "clue": "r"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "f"
+    },
+    {
+      "player": "Karel",
+      "clue": "f"
+    }
+  ],
+  "validClues": [
+    "r"
+  ],
+  "result": 0
+},
+{
+  "mysteryWord": "Cirque",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": "fd"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "e"
+    },
+    {
+      "player": "Karel",
+      "clue": "f"
+    },
+    {
+      "player": "Hatim",
+      "clue": ""
+    }
+  ],
+  "validClues": [
+    "fd",
+    "e",
+    "f",
+    ""
+  ],
+  "result": 0
+},
+{
+  "mysteryWord": "Europe",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": "g"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "f"
+    },
+    {
+      "player": "Karel",
+      "clue": ""
+    },
+    {
+      "player": "Hatim",
+      "clue": ""
+    }
+  ],
+  "validClues": [
+    "g",
+    "f"
+  ],
+  "result": 0
+},
+{
+  "mysteryWord": "Europe",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": "g"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "g"
+    },
+    {
+      "player": "Karel",
+      "clue": "5"
+    },
+    {
+      "player": "Hatim",
+      "clue": "h"
+    }
+  ],
+  "validClues": [
+    "5",
+    "h"
+  ],
+  "result": 0
+},
+{
+  "mysteryWord": "Europe",
+  "clues": [
+    {
+      "player": "Ivan",
+      "clue": "5"
+    },
+    {
+      "player": "Jérémie",
+      "clue": "fg"
+    },
+    {
+      "player": "Karel",
+      "clue": "g"
+    },
+    {
+      "player": "Hatim",
+      "clue": ""
+    }
+  ],
+  "validClues": [
+    "5",
+    "fg",
+    "g",
+    ""
+  ],
+  "result": 0
+},

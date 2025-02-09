@@ -2,6 +2,4 @@
 
 github du projet ELP de Jérémie Caradec et Quentin Valette
 
-descriptif du projet :
-
-objectifs :
+Les fichiers pour go et elm se trouvent dans leurs dossiers respectifs

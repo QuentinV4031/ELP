@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turtle Graphics</title>
+    <style>
+        #drawingCanvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+    <br>
+    <input id="commandInput" type="text" placeholder="Entrez les commandes turtle ici" size="50">
+    <button id="runButton">Exécuter</button>
+
+    <script>
+        function interpretTurtleCommands(commands) {
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            let x = canvas.width / 2;
+            let y = canvas.height / 2;
+            let angle = 0;
+            let isPenDown = true;
+
+            commands.split(' ').forEach(command => {
+                const [cmd, param] = command.split(':');
+                switch (cmd) {
+                    case 'fd':
+                    case 'forward':
+                        if (isPenDown) {
+                            ctx.beginPath();
+                            ctx.moveTo(x, y);
+                            x += Number(param) * Math.cos(angle);
+                            y += Number(param) * Math.sin(angle);
+                            ctx.lineTo(x, y);
+                            ctx.stroke();
+                        } else {
+                            x += Number(param) * Math.cos(angle);
+                            y += Number(param) * Math.sin(angle);
+                        }
+                        break;
+                    case 'bk':
+                    case 'backward':
+                        if (isPenDown) {
+                            ctx.beginPath();
+                            ctx.moveTo(x, y);
+                            x -= Number(param) * Math.cos(angle);
+                            y -= Number(param) * Math.sin(angle);
+                            ctx.lineTo(x, y);
+                            ctx.stroke();
+                        } else {
+                            x -= Number(param) * Math.cos(angle);
+                            y -= Number(param) * Math.sin(angle);
+                        }
+                        break;
+                    case 'rt':
+                    case 'right':
+                        angle -= Number(param) * (Math.PI / 180);
+                        break;
+                    case 'lt':
+                    case 'left':
+                        angle += Number(param) * (Math.PI / 180);
+                        break;
+                    case 'pu':
+                    case 'penup':
+                        isPenDown = false;
+                        break;
+                    case 'pd':
+                    case 'pendown':
+                        isPenDown = true;
+                        break;
+                }
+            });
+        }
+
+        document.getElementById('runButton').addEventListener('click', () => {
+            const commands = document.getElementById('commandInput').value;
+            interpretTurtleCommands(commands);
+        });
+    </script>
+</body>
+</html>

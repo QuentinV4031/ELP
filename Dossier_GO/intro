@@ -1,0 +1,12 @@
+endroit pour le code go
+
+Programme retenu :
+
+Floutage d'une image
+
+données d'entrée :
+- image à flouter
+- zone à flouter sur l'image (rectangulaire, à voir pour d'autres formes)
+
+données de sortie :
+- image avec une zone floutée

@@ -5,6 +5,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
 import Parser exposing (..)
+import Svg exposing (..)
+import Svg.Attributes exposing (..) 
+
 
 -- Main
 main =
@@ -55,20 +58,21 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewInput "text" "exemple: [Reapeat 100 [Forward 10]]: " model.text In
-        , button [ onClick ParseText ] [ text "Lire" ]
-        , div [] [ text "Résultat: ", text (instructionsToString model.result) ]
+        , button [ onClick ParseText ] [ Html.text "Lire" ]
+        , div [] [ Html.text "Résultat: ", Html.text (instructionsToString model.result) ]
+        , div [] [ renderSVG model.result ]
         ]
 
 viewInput : String -> String -> String -> (String -> msg) -> Html msg
 viewInput t p v toMsg =
-  input [ type_ t, placeholder p, value v, onInput toMsg ] []
+  input [ Html.Attributes.type_ t, placeholder p, value v, onInput toMsg ] []
 
 -- Convert a list of instructions to a string
 instructionsToString : List Instruction -> String
 instructionsToString instructions =
     let
-        instructionToString instr =
-            case instr of
+        instructionToString instru =
+            case instru of
                 Forward n ->
                     "Forward " ++ String.fromInt n
                 Left n ->
@@ -133,7 +137,72 @@ parseLoop : List Instruction -> Parser (Step (List Instruction) (List Instructio
 parseLoop acc =
     oneOf
         [ parseInstruction
-            |> andThen (\instr -> succeed (Loop (instr :: acc)))
+            |> andThen (\instru -> succeed (Loop (instru :: acc)))
         , succeed (Done (List.reverse acc))
         ]
 
+-- Fonction pour rendre les instructions en SVG
+renderSVG : List Instruction -> Html Msg
+renderSVG instructions =
+    let
+        -- État initial : position (x, y) et angle de rotation
+        initialState =
+            { x = 200, y = 200, angle = 0 }
+
+        -- Fonction pour appliquer une instruction et mettre à jour l'état
+        applyInstruction : Instruction -> { x : Int, y : Int, angle : Int } -> ( { x : Int, y : Int, angle : Int }, List (Svg Msg) )
+        applyInstruction instr state =
+            case instr of
+                Forward n ->
+                    let
+                        newX = state.x + round (toFloat n * cos (degrees (toFloat state.angle)))
+                        newY = state.y - round (toFloat n * sin (degrees (toFloat state.angle)))
+                        lineElement =
+                            line
+                                [ x1 (String.fromInt state.x)
+                                , y1 (String.fromInt state.y)
+                                , x2 (String.fromInt newX)
+                                , y2 (String.fromInt newY)
+                                , stroke "black"
+                                , strokeWidth "2"
+                                ]
+                                []
+                    in
+                    ( { x = newX, y = newY, angle = state.angle }, [ lineElement ] )
+
+                Left n ->
+                    ( { state | angle = state.angle + n }, [] )
+
+                Right n ->
+                    ( { state | angle = state.angle - n }, [] )
+
+                Repeat n instrs ->
+                    let
+                        (newState, elements) =
+                            List.foldl
+                                (\instru (accState, accElements) ->
+                                    let
+                                        (updatedState, newElements) = applyInstruction instru accState
+                                    in
+                                    (updatedState, accElements ++ newElements)
+                                )
+                                (state, [])
+                                (List.concat (List.repeat n instrs))
+                    in
+                    (newState, elements)
+
+        -- Appliquer toutes les instructions et collecter les éléments SVG
+        (finalState, svgElements) =
+            List.foldl
+                (\instr (accState, accElements) ->
+                    let
+                        (updatedState, newElements) = applyInstruction instr accState
+                    in
+                    (updatedState, accElements ++ newElements)
+                )
+                (initialState, [])
+                instructions
+    in
+    svg
+        [ Svg.Attributes.width "400", Svg.Attributes.height "400", viewBox "0 0 400 400" ]
+        svgElements

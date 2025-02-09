@@ -1,4 +1,9 @@
-# ELP
+## ELP
 
-j'ai fait ça ouvre avec ton navigateur pour faire un carré tu doit taper 4 fois la commande (fd:100 rt:90)
-tout ça dans la boite texte en dessous sur la meme ligne. il faudrait pouvoir faire la fonction repeat comme il y a dans son exemple
+# ELM
+
+le code se trouve dans src/Main.elm
+
+La version html du code est TC_Turtles.html
+
+Les commandes disponibles sont les mêmes que l'exemple qu'il nous était proposé de reproduire. (Forward x , Left x , Right x , Repeat x [] )

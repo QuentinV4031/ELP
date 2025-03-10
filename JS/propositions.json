@@ -1,0 +1,49 @@
+{
+  "motSecret": "livre",
+  "indices": [
+    {
+      "joueur": "Alice",
+      "indice": "peinture"
+    },
+    {
+      "joueur": "Bob",
+      "indice": "calculatrice"
+    },
+    {
+      "joueur": "Charlie",
+      "indice": "porte"
+    },
+    {
+      "joueur": "Diana",
+      "indice": "noisettier"
+    },
+    {
+      "joueur": "Eve",
+      "indice": "nougat"
+    }
+  ],
+  "indicesUniques": [
+    {
+      "joueur": "Alice",
+      "indice": "peinture"
+    },
+    {
+      "joueur": "Bob",
+      "indice": "calculatrice"
+    },
+    {
+      "joueur": "Charlie",
+      "indice": "porte"
+    },
+    {
+      "joueur": "Diana",
+      "indice": "noisettier"
+    },
+    {
+      "joueur": "Eve",
+      "indice": "nougat"
+    }
+  ],
+  "tentative": "pomme",
+  "resultat": "Perdu"
+}

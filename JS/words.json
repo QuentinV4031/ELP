@@ -1,0 +1,17 @@
+[
+    { "words": ["Europe", "Guitare", "Château", "Pizza", "Tigre"] },
+    { "words": ["Cirque", "Lune", "Violon", "Soldat", "Banane"] },
+    { "words": ["Virus", "Planète", "Bateau", "Flûte", "Médecin"] },
+    { "words": ["Crocodile", "Sculpture", "Téléphone", "Éléphant", "Reine"] },
+    { "words": ["Moutarde", "Photographie", "Magicien", "Fusée", "Natation"] },
+    { "words": ["Chat", "Ambulance", "Roi", "Théâtre", "Internet"] },
+    { "words": ["Soleil", "Piano", "Policier", "Dragon", "Comète"] },
+    { "words": ["Voiture", "Juge", "Peinture", "Dauphin", "Batterie"] },
+    { "words": ["Montagne", "Sortilège", "Tennis", "Clavier", "Pompiers"] },
+    { "words": ["Python", "Prince", "Chocolat", "Vélo", "Basket"] },
+    { "words": ["Écran", "Fromage", "Étoile", "Bureau", "Pharmacie"] },
+    { "words": ["Souris", "Potion", "Fraise", "Girafe", "Avion"] },
+    { "words": ["Hôpital", "Cinéma", "Robot", "Ski", "Détective"] },
+    { "words": ["Football", "Carotte", "Jouer", "Train", "Baguette"] },
+    { "words": ["Ordinateur", "Montagne", "Chevalier", "Chocolat", "Serpent"] }
+]

@@ -1,6 +1,6 @@
 # ELP
 
-// github du projet ELP de Jérémie Caradec et Quentin Valette
+Le fichier de code est " justOne_v5.js "  (nous n'avions pas encore bien compris l'utilité de Git  mais c'est le cas maintenant)
 
 Partie javascript
 
